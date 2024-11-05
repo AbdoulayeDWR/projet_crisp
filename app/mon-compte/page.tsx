@@ -38,7 +38,7 @@ export default function Home() {
 
       const data = await response.json();
       console.log("Données JSON récupérées:", data);
-      setOeuvres(data); // Mise à jour de l'état avec les données récupérées
+      setOeuvres(data.message); // Mise à jour de l'état avec les données récupérées
     } catch (error) {
       console.error("Erreur lors de la récupération des œuvres :", error);
     }
