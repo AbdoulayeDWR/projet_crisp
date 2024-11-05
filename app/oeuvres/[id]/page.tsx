@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import Head from 'next/head';
 
 // Définissez l'interface pour l'objet Oeuvre
@@ -11,25 +11,29 @@ interface Oeuvre {
   art_desc: string;
 }
 
-export default function OeuvreDetails(params:any) {
-  // Spécifiez le type de l'état oeuvre
+export default function OeuvreDetails() {
+  const pathname = usePathname();
+  const id = pathname.split("/").pop(); // Récupère l'ID de l'œuvre depuis l'URL
   const [oeuvre, setOeuvre] = useState<Oeuvre | null>(null);
-  const id = params.params.id;
 
   useEffect(() => {
     const fetchOeuvre = async () => {
-      console.log(id);
-      
       if (id) {
         try {
           const response = await fetch(`/api/oeuvre`, {
             method: 'POST',
-            body: JSON.stringify({
-              id: id
-            })
+            body: JSON.stringify({ id: id }),
+            headers: { 'Content-Type': 'application/json' }
           });
           const data = await response.json();
           setOeuvre(data.message);
+
+          // Enregistrer la visite dans la base de données
+          await fetch('/api/views', {
+            method: 'POST',
+            body: JSON.stringify({ artworkId: id }), // Envoie l'ID de l'œuvre visitée
+            headers: { 'Content-Type': 'application/json' }
+          });
         } catch (error) {
           console.error('Erreur lors de la récupération des détails de l\'œuvre:', error);
         }
